@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>NSCameraUsageDescription</key>
-	<string>고양이의 운명을 확인하기 위해 카메라가 필요합니다</string>
+	<string>고양이 양자 상태 관측을 위해 카메라 접근이 필요합니다</string>
 	<key>UISceneStoryboardFile</key>
 	<string>Main</string>
 	<key>UIApplicationSceneManifest</key>

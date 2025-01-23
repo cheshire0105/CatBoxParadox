@@ -13,17 +13,17 @@ class QuantumCatViewController: UIViewController {
         return view
     }()
 
-    private let quantumBoxLabel: UILabel = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "📦"
-        label.font = .systemFont(ofSize: 160)
-        label.textAlignment = .center
-        label.layer.shadowColor = UIColor.systemTeal.cgColor
-        label.layer.shadowRadius = 15
-        label.layer.shadowOpacity = 0.7
-        label.layer.shadowOffset = .zero
-        return label
+    // 기존 UILabel 코드 삭제 후 UIImageView로 교체
+    private let quantumBoxImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.image = UIImage(named: "box") // Assets에 box 이미지 추가
+        imageView.contentMode = .scaleAspectFit
+        imageView.layer.shadowColor = UIColor.systemTeal.cgColor
+        imageView.layer.shadowRadius = 15
+        imageView.layer.shadowOpacity = 0.7
+        imageView.layer.shadowOffset = .zero
+        return imageView
     }()
 
     private let quantumGlowLayer: CAGradientLayer = {
@@ -60,10 +60,10 @@ class QuantumCatViewController: UIViewController {
         label.text = """
         🪄 양자 마법 상자!
         상자를 열기 전까지는
-        고양이가 [둘 다] 상태예요!
-        (슈뢰딩거 할아버지의 특별한 실험)
+        고양이는 [둘 다] 상태예요!
+        (여기와 다른 차원을 동시에 여행 중!)
         """
-        label.font = UIFont(name: "DungGeunMo", size: 22) // 폰트 사이즈 조정
+        label.font = UIFont.systemFont(ofSize: 22, weight: .medium) // 폰트 사이즈 조정
         label.textColor = .systemTeal
         label.textAlignment = .center
         label.numberOfLines = 0
@@ -74,24 +74,31 @@ class QuantumCatViewController: UIViewController {
     private let quantumStateLabel: GradientLabel = {
         let label = GradientLabel()
         label.text = """
-        📦 상자 상태
-        [양자 물질 변환 모드]
-        """
-        label.font = UIFont(name: "DungGeunMo", size: 32)
+           📦 신기한 마법 상자!
+           (고양이는 동시에 여러 곳에 있을 수 있어요)
+           """
+        label.font = UIFont.systemFont(ofSize: 22, weight: .medium)
         label.textAlignment = .center
+        label.numberOfLines = 0 // 여러 줄 허용
+        label.lineBreakMode = .byWordWrapping // 단어 단위 줄바꿈
+        label.adjustsFontSizeToFitWidth = true // 폰트 크기 자동 조절
+        label.minimumScaleFactor = 0.7 // 최소 축소 비율
         label.gradientColors = [UIColor.systemTeal.cgColor, UIColor.systemPurple.cgColor]
         return label
     }()
 
     private let observerEffectLabel: UILabel = {
         let label = UILabel()
-           label.text = """
-           👀 신비한 관찰자의 힘!
-           3초 동안 상자를 집중해서 보면
-           양자 상태가 변해요!
-           고양이가 있을까요? 없을까요?
-           """
-        label.font = UIFont(name: "DungGeunMo", size: 18)
+        label.text = """
+        👀 3초 동안 상자를 바라보면
+        고양이가 여기 있거나,
+        없던 상태에서 한 곳으로 확정돼요!
+        
+        이걸 '관찰자 효과'라고 해요.
+        우리가 지켜보는 것만으로도
+        고양이의 상태가 바뀌는 거예요!
+        """
+        label.font = UIFont.systemFont(ofSize: 18, weight: .medium)
         label.textColor = .systemTeal // 색상 변경
         label.textAlignment = .center
         label.numberOfLines = 0 // 다중 라인 허용
@@ -100,8 +107,8 @@ class QuantumCatViewController: UIViewController {
 
     private lazy var resetButton: UIButton = {
         let button = UIButton()
-        button.setTitle("🔮 실험 다시하기", for: .normal)
-        button.titleLabel?.font = UIFont(name: "DungGeunMo", size: 20)
+        button.setTitle("🔮 다시 시도하기", for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 22, weight: .medium)
         button.backgroundColor = .clear
         button.layer.borderColor = UIColor.systemTeal.cgColor
         button.layer.borderWidth = 2
@@ -134,7 +141,7 @@ class QuantumCatViewController: UIViewController {
         emitter.renderMode = .additive
 
         let cell = CAEmitterCell()
-//        cell.contents = UIImage(systemName: "sparkle")?.cgImage
+        //        cell.contents = UIImage(systemName: "sparkle")?.cgImage
         cell.birthRate = 50
         cell.lifetime = 3
         cell.velocity = 50
@@ -159,7 +166,7 @@ class QuantumCatViewController: UIViewController {
     // Debug UI
     private let debugInfoLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont(name: "DungGeunMo", size: 14)
+        label.font = UIFont.systemFont(ofSize: 22, weight: .medium)
         label.textColor = .systemGreen
         label.numberOfLines = 0
         label.alpha = 0.7
@@ -168,11 +175,16 @@ class QuantumCatViewController: UIViewController {
 
     private let countdownLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont(name: "DungGeunMo", size: 24)
+        label.font = UIFont.systemFont(ofSize: 22, weight: .medium)
         label.textColor = .systemRed
         label.textAlignment = .center
         return label
     }()
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        startBoxIdleAnimation()
+    }
 
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -184,14 +196,14 @@ class QuantumCatViewController: UIViewController {
         // Lottie 애니메이션 사전 로드
         catAnimationView.contentMode = .scaleAspectFit
         emptyBoxAnimationView.contentMode = .scaleAspectFit
-        quantumBoxLabel.isHidden = false // 상자 다시 보이기
-           startBoxIdleAnimation()
+        quantumBoxImageView.isHidden = false // 상자 다시 보이기
+        startBoxIdleAnimation()
     }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         quantumGlowLayer.frame = quantumContainer.bounds
-        particleEmitter.emitterPosition = quantumBoxLabel.center
+        particleEmitter.emitterPosition = quantumBoxImageView.center
     }
 
     // MARK: - UI Configuration
@@ -205,21 +217,21 @@ class QuantumCatViewController: UIViewController {
         view.addSubview(backgroundView)
 
         quantumContainer.layer.addSublayer(quantumGlowLayer)
-        quantumContainer.addSubview(quantumBoxLabel)
+        quantumContainer.addSubview(quantumBoxImageView)
         view.addSubview(quantumContainer)
         quantumContainer.addSubview(catAnimationView)
-           quantumContainer.addSubview(emptyBoxAnimationView)
+        quantumContainer.addSubview(emptyBoxAnimationView)
 
         let hologramOverlay = HologramView()
         hologramOverlay.frame = quantumContainer.frame
         view.addSubview(hologramOverlay)
 
         // 스택뷰에서 superpositionLabel 제거
-            let stackView = UIStackView(arrangedSubviews: [
-                quantumStateLabel,
-                observerEffectLabel,
-                resetButton
-            ])
+        let stackView = UIStackView(arrangedSubviews: [
+            quantumStateLabel,
+            observerEffectLabel,
+            resetButton
+        ])
         stackView.axis = .vertical
         stackView.spacing = 25
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -227,19 +239,20 @@ class QuantumCatViewController: UIViewController {
 
         quantumContainer.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            quantumContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 50),
             quantumContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            quantumContainer.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -150), // ▼ 중앙에서 -150포인트 위로
             quantumContainer.widthAnchor.constraint(equalToConstant: 250),
             quantumContainer.heightAnchor.constraint(equalToConstant: 250),
 
-            quantumBoxLabel.centerXAnchor.constraint(equalTo: quantumContainer.centerXAnchor),
-            quantumBoxLabel.centerYAnchor.constraint(equalTo: quantumContainer.centerYAnchor),
-            quantumBoxLabel.widthAnchor.constraint(equalToConstant: 160),
-            quantumBoxLabel.heightAnchor.constraint(equalToConstant: 160),
+            quantumBoxImageView.centerXAnchor.constraint(equalTo: quantumContainer.centerXAnchor),
+            quantumBoxImageView.centerYAnchor.constraint(equalTo: quantumContainer.centerYAnchor, constant: 40),
+            quantumBoxImageView.widthAnchor.constraint(equalToConstant: 400),
+            quantumBoxImageView.heightAnchor.constraint(equalToConstant: 400),
 
+            stackView.topAnchor.constraint(equalTo: quantumContainer.bottomAnchor, constant: 30), // ▼ 상자 아래 30포인트
             stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            stackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -50),
             stackView.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 30),
+            stackView.bottomAnchor.constraint(lessThanOrEqualTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20), // ▼ 최대 하단 제한
 
             resetButton.heightAnchor.constraint(equalToConstant: 50),
             resetButton.widthAnchor.constraint(equalToConstant: 250)
@@ -278,7 +291,7 @@ class QuantumCatViewController: UIViewController {
         shake.keyTimes = [0, 0.25, 0.5, 0.75, 1]
         shake.duration = 2
         shake.repeatCount = .infinity
-        quantumBoxLabel.layer.add(shake, forKey: "boxShake")
+        quantumBoxImageView.layer.add(shake, forKey: "boxShake")
 
         let glow = CABasicAnimation(keyPath: "opacity")
         glow.fromValue = 0.3
@@ -304,7 +317,7 @@ class QuantumCatViewController: UIViewController {
         configuration.isWorldTrackingEnabled = true
         arSceneView.session.run(configuration)
 
-//        setupDebugUI()
+        //        setupDebugUI()
     }
 
     // MARK: - Face Tracking Logic
@@ -413,10 +426,10 @@ class QuantumCatViewController: UIViewController {
         boxOpenAnimator = nil
 
         // 2. 상자 UI 상태 완전 초기화
-        quantumBoxLabel.layer.removeAllAnimations()
-        quantumBoxLabel.transform = .identity // ⭐️ 트랜스폼 초기화
-        quantumBoxLabel.alpha = 1.0 // ⭐️ 알파값 복원
-        quantumBoxLabel.isHidden = false
+        quantumBoxImageView.layer.removeAllAnimations()
+        quantumBoxImageView.transform = .identity // ⭐️ 트랜스폼 초기화
+        quantumBoxImageView.alpha = 1.0 // ⭐️ 알파값 복원
+        quantumBoxImageView.isHidden = false
 
         // 3. ARKit 트래킹 관련 상태 초기화
         isUserLooking = false
@@ -439,25 +452,22 @@ class QuantumCatViewController: UIViewController {
         startBoxIdleAnimation()
 
         // 7. 라벨 상태 초기화
-        quantumStateLabel.text = "[양자 물질 변환 모드]"
+        quantumStateLabel.text = """
+           📦 신기한 마법 상자!
+           (고양이는 동시에 여러 곳에 있을 수 있어요)
+           """
         countdownLabel.text = ""
     }
 
-    @objc private func showQuantumTutorial() {
-        let alert = UIAlertController(
-            title: "🔍 양자 탐험 안내",
-            message: """
-            1. 상자를 3초 동안 똑바로 보세요!
-            2. 관찰을 통해 고양이의 위치를 확인
-            3. 결과는 매번 달라지는 신비한 양자 세계!
-            (고양이는 동시에 여러 곳에 있을 수 있어요)
-            """,
-            preferredStyle: .alert
+    // QuantumCatViewController 내부에 추가할 코드
 
-        )
-        alert.addAction(UIAlertAction(title: "확인", style: .default))
-        present(alert, animated: true)
+    @objc private func showQuantumTutorial() {
+        let tutorialVC = TutorialViewController()
+        tutorialVC.modalPresentationStyle = .overCurrentContext
+        tutorialVC.modalTransitionStyle = .crossDissolve
+        present(tutorialVC, animated: true)
     }
+
 
     private func playSoundEffect(name: String) {
         guard let url = Bundle.main.url(forResource: name, withExtension: "wav") else { return }
@@ -468,20 +478,23 @@ class QuantumCatViewController: UIViewController {
 
     // 결과 팝업 메시지 개선안
     private func showResultPopup(isPresent: Bool) {
-        let message = isPresent ?
-        """
-        🎉 상자 안을 확인했어요!
-        귀여운 고양이가 나타났어요!
-        (관찰로 양자 상태가 확정되었습니다)
-        """ :
-        """
-        🌈 신비한 양자 현상!
-        고양이는 다른 곳으로 이동했어요!
-        다음 관찰에선 달라질 거예요!
-        """
-
+        let message = isPresent
+        ? """
+               🐾 박스 안에서 고양이 발견!
+               지금은 휴식을 취하고 있대요!
+               
+               우리 시선이 고양이를
+               이곳으로 불러냈나봐요!
+               """
+        : """
+               🌌 고양이는 우주 여행 중!
+               이번엔 다른 차원에 있나 봐요!
+               
+               우리가 보기 전에는
+               여러 곳에 있을 수도 있대요!
+               """
         let alert = UIAlertController(
-            title: isPresent ? "🐾 고양이 발견!" : "🌟 우주 모험 중",
+            title: isPresent ? "상자 안에 있어요!" : "여행 중이에요!",
             message: message,
             preferredStyle: .alert
         )
@@ -499,30 +512,32 @@ class QuantumCatViewController: UIViewController {
 
         boxOpenAnimator?.stopAnimation(true)
         boxOpenAnimator = UIViewPropertyAnimator(duration: 1.0, dampingRatio: 0.6) {
-            self.quantumBoxLabel.transform = CGAffineTransform(scaleX: 1.8, y: 0.2)
-            self.quantumBoxLabel.alpha = 0.5
+            self.quantumBoxImageView.transform = CGAffineTransform(scaleX: 1.8, y: 0.2)
+            self.quantumBoxImageView.alpha = 0.5
         }
 
         boxOpenAnimator?.addCompletion { _ in
-                self.quantumBoxLabel.isHidden = true // 기존 상자 숨기기
+            self.quantumBoxImageView.isHidden = true // 기존 상자 숨기기
 
-                // 애니메이션 초기화
-                self.catAnimationView.stop()
-                self.emptyBoxAnimationView.stop()
-                self.catAnimationView.isHidden = true
-                self.emptyBoxAnimationView.isHidden = true
+            // 애니메이션 초기화
+            self.catAnimationView.stop()
+            self.emptyBoxAnimationView.stop()
+            self.catAnimationView.isHidden = true
+            self.emptyBoxAnimationView.isHidden = true
 
-                if isPresent {
-                    self.catAnimationView.isHidden = false
-                    self.catAnimationView.play()
-                    
-                } else {
-                    self.emptyBoxAnimationView.isHidden = false
-                    self.emptyBoxAnimationView.play()
-                }
+            if isPresent {
+                self.catAnimationView.isHidden = false
+                self.catAnimationView.play()
+
+            } else {
+                self.emptyBoxAnimationView.isHidden = false
+                self.emptyBoxAnimationView.play()
+            }
 
             UIView.transition(with: self.quantumStateLabel, duration: 0.8, options: .transitionCrossDissolve) {
-                self.quantumStateLabel.text = isPresent ? "In the Box 🐾" : "Out Exploring 🌟"
+                self.quantumStateLabel.text = isPresent
+                ? "고양이는 상자 속에 있어요! 🐾"
+                : "고양이는 다른 차원으로 놀러갔어요! 🌟"
                 self.quantumStateLabel.gradientColors = isPresent ?
                 [UIColor.systemBlue.cgColor, UIColor(hex: "#00ff88").cgColor] :
                 [UIColor.systemPurple.cgColor, UIColor(hex: "#ff99cc").cgColor]
@@ -543,7 +558,7 @@ class QuantumCatViewController: UIViewController {
         confetti.emitterSize = CGSize(width: view.frame.width, height: 1)
 
         let cell = CAEmitterCell()
-//        cell.contents = UIImage(systemName: isPresent ? "pawprint.fill" : "sparkles")?.cgImage
+        //        cell.contents = UIImage(systemName: isPresent ? "pawprint.fill" : "sparkles")?.cgImage
         cell.birthRate = 100
         cell.lifetime = 5
         cell.velocity = 150
@@ -591,15 +606,20 @@ class GradientLabel: UILabel {
         gradientLayer.startPoint = CGPoint(x: 0, y: 0.5)
         gradientLayer.endPoint = CGPoint(x: 1, y: 0.5)
         layer.addSublayer(gradientLayer)
-        mask = UILabel(frame: bounds)
-        (mask as? UILabel)?.text = text
-        (mask as? UILabel)?.font = font
-        (mask as? UILabel)?.textAlignment = textAlignment
+
+        let maskLabel = UILabel(frame: bounds)
+        maskLabel.text = text
+        maskLabel.font = font
+        maskLabel.textAlignment = textAlignment
+        maskLabel.numberOfLines = numberOfLines // 추가
+        maskLabel.lineBreakMode = lineBreakMode // 추가
+        mask = maskLabel
     }
 
     override func layoutSubviews() {
         super.layoutSubviews()
         updateGradient()
+        setNeedsDisplay() // 레이아웃 변경 시 리프레시
     }
 }
 
@@ -690,12 +710,20 @@ class IntroViewController: UIViewController {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = """
-        🪄 양자 마법 상자!
-        상자를 열기 전까지는
-        고양이가 [둘 다] 상태예요!
-        (슈뢰딩거 할아버지의 특별한 실험)
-        """
-        label.font = UIFont(name: "DungGeunMo", size: 24)
+            🌌 양자 세계에 온 걸 환영해요!
+            
+            이 앱에서는 귀여운 고양이와 함께
+            신기한 양자 세계를 탐험할 거예요.
+            
+            양자 세계에선 한 가지가
+            동시에 여러 곳에 있을 수도 있어요!
+            우리가 보기 전까지는 알 수 없죠.
+            
+            버튼을 눌러서
+            고양이와 함께 모험을 떠나봐요!
+            """
+
+        label.font = UIFont.systemFont(ofSize: 18, weight: .medium)
         label.textColor = .systemTeal
         label.textAlignment = .center
         label.numberOfLines = 0
@@ -707,7 +735,7 @@ class IntroViewController: UIViewController {
     private let startButton: UIButton = {
         let button = UIButton()
         button.setTitle("상자 바라보러 가기", for: .normal)
-        button.titleLabel?.font = UIFont(name: "DungGeunMo", size: 22)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 22, weight: .medium)
         button.backgroundColor = .systemTeal
         button.layer.cornerRadius = 15
         button.layer.shadowColor = UIColor.systemTeal.cgColor
@@ -751,7 +779,148 @@ class IntroViewController: UIViewController {
 
     @objc private func goToMain() {
         let mainVC = QuantumCatViewController()
-        mainVC.modalPresentationStyle = .fullScreen
-        present(mainVC, animated: true)
+
+        // 백 버튼 아이템 커스텀 설정
+        let backItem = UIBarButtonItem()
+        backItem.title = "" // 백 버튼 텍스트 공백
+        backItem.tintColor = .systemTeal // 색상은 선택사항
+        navigationItem.backBarButtonItem = backItem
+
+        navigationController?.pushViewController(mainVC, animated: true)
+    }
+}
+
+// 새로 추가할 TutorialViewController 클래스
+class TutorialViewController: UIViewController {
+
+    private let containerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor(red: 0.1, green: 0.1, blue: 0.2, alpha: 1)
+        view.layer.cornerRadius = 20
+        view.layer.borderColor = UIColor.systemTeal.cgColor
+        view.layer.borderWidth = 2
+        view.layer.shadowColor = UIColor.systemTeal.cgColor
+        view.layer.shadowRadius = 20
+        view.layer.shadowOpacity = 0.5
+        return view
+    }()
+
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "🔍 마법상자 사용법"
+        label.font = UIFont.systemFont(ofSize: 22, weight: .medium)
+        label.textColor = .systemTeal
+        label.textAlignment = .center
+        return label
+    }()
+
+    private let textView: UITextView = {
+        let tv = UITextView()
+        tv.isEditable = false
+        tv.isSelectable = false
+        tv.backgroundColor = .clear
+        tv.textColor = .systemTeal
+
+        // 행간 및 단어 단위 줄바꿈 설정
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = 5
+        paragraphStyle.lineBreakMode = .byWordWrapping
+        paragraphStyle.paragraphSpacing = 8
+
+        let attributedString = NSMutableAttributedString(
+            string: """
+                    상자를 3초 동안 바라보면, 고양이가 여기저기 있던 상태에서 한 곳에 나타나요.  
+                    이걸 '관찰자 효과'라고 해요.  
+                    우리가 고양이를 바라보는 순간, 고양이의 상태가 정해지는 거예요.  
+                    신기하죠? 우리의 '관찰'이 고양이의 세계에 영향을 미친다니요!
+
+                    이건 사실, 아주 작은 미시세계에서 일어나는 특별한 일이에요.  
+                    고양이가 들어 있는 상자는 '양자 세계'를 보여주는 마법 같은 도구라고 할 수 있어요.  
+
+                    양자의 세계에서는, 어떤 물체가 동시에 여러 곳에 있을 수도 있고, 여러 가지 상태를 동시에 가질 수도 있어요.  
+                    하지만 누군가가 그것을 '관찰'하는 순간, 그 상태는 하나로 정해져 버리죠.  
+
+                    그래서 상자를 바라보면 고양이의 상태가 결정되는 거고,  
+                    상자를 보지 않으면 고양이는 여전히 여러 곳을 동시에 여행하고 있을지도 몰라요.  
+
+                    이런 놀라운 현상은 우리가 살고 있는 큰 세계가 아니라,  
+                    아주 작은 미시세계에서만 일어나는 일이에요.  
+                    고양이는 이 작은 세계의 비밀을 알려주는 역할을 하고 있답니다!
+                    """,
+            attributes: [
+                .paragraphStyle: paragraphStyle,
+                .foregroundColor: UIColor.systemTeal,
+                .font: UIFont.systemFont(ofSize: 20, weight: .medium) // 폰트 속성 추가
+            ]
+        )
+
+        tv.attributedText = attributedString
+        tv.textAlignment = .left
+        tv.textContainerInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10) // 패딩 추가
+        return tv
+    }()
+
+    private let closeButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("닫기", for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 22, weight: .medium)
+        button.backgroundColor = .clear
+        button.layer.borderColor = UIColor.systemTeal.cgColor
+        button.layer.borderWidth = 2
+        button.layer.cornerRadius = 15
+        button.addTarget(self, action: #selector(closeTutorial), for: .touchUpInside)
+        return button
+    }()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+        addHologramEffect()
+    }
+
+    private func setupUI() {
+        view.backgroundColor = UIColor.black.withAlphaComponent(0.8)
+
+        view.addSubview(containerView)
+        containerView.addSubview(titleLabel)
+        containerView.addSubview(textView)
+        containerView.addSubview(closeButton)
+
+        containerView.translatesAutoresizingMaskIntoConstraints = false
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        textView.translatesAutoresizingMaskIntoConstraints = false
+        closeButton.translatesAutoresizingMaskIntoConstraints = false
+
+        NSLayoutConstraint.activate([
+            containerView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            containerView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            containerView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8),
+            containerView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.6),
+
+            titleLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 20),
+            titleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
+            titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20),
+
+            textView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 15),
+            textView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 15),
+            textView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -15),
+            textView.bottomAnchor.constraint(equalTo: closeButton.topAnchor, constant: -15),
+
+            closeButton.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -20),
+            closeButton.centerXAnchor.constraint(equalTo: containerView.centerXAnchor),
+            closeButton.widthAnchor.constraint(equalToConstant: 100),
+            closeButton.heightAnchor.constraint(equalToConstant: 40)
+        ])
+    }
+
+    private func addHologramEffect() {
+        let hologram = HologramView()
+        hologram.frame = containerView.bounds
+        hologram.layer.cornerRadius = 20
+        containerView.insertSubview(hologram, at: 0)
+    }
+
+    @objc private func closeTutorial() {
+        dismiss(animated: true)
     }
 }

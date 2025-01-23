@@ -11,11 +11,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
-
-    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+    func scene(
+        _ scene: UIScene,
+        willConnectTo session: UISceneSession,
+        options connectionOptions: UIScene.ConnectionOptions
+    ) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = IntroViewController() // ⬅️ 변경
+
+        let introVC = IntroViewController()
+        let navigationController = UINavigationController(rootViewController: introVC)
+
+        window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
     }
 
