@@ -214,12 +214,12 @@ class QuantumCatViewController: UIViewController {
         hologramOverlay.frame = quantumContainer.frame
         view.addSubview(hologramOverlay)
 
-        let stackView = UIStackView(arrangedSubviews: [
-            superpositionLabel,
-            quantumStateLabel,
-            observerEffectLabel,
-            resetButton
-        ])
+        // 스택뷰에서 superpositionLabel 제거
+            let stackView = UIStackView(arrangedSubviews: [
+                quantumStateLabel,
+                observerEffectLabel,
+                resetButton
+            ])
         stackView.axis = .vertical
         stackView.spacing = 25
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -679,5 +679,79 @@ extension UIColor {
         let g = CGFloat((hexNumber & 0x00ff00) >> 8) / 255
         let b = CGFloat(hexNumber & 0x0000ff) / 255
         self.init(red: r, green: g, blue: b, alpha: 1)
+    }
+}
+
+import UIKit
+
+class IntroViewController: UIViewController {
+
+    // MARK: - UI Components
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.text = """
+        🪄 양자 마법 상자!
+        상자를 열기 전까지는
+        고양이가 [둘 다] 상태예요!
+        (슈뢰딩거 할아버지의 특별한 실험)
+        """
+        label.font = UIFont(name: "DungGeunMo", size: 24)
+        label.textColor = .systemTeal
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        label.alpha = 0.9
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private let startButton: UIButton = {
+        let button = UIButton()
+        button.setTitle("상자 바라보러 가기", for: .normal)
+        button.titleLabel?.font = UIFont(name: "DungGeunMo", size: 22)
+        button.backgroundColor = .systemTeal
+        button.layer.cornerRadius = 15
+        button.layer.shadowColor = UIColor.systemTeal.cgColor
+        button.layer.shadowRadius = 10
+        button.layer.shadowOpacity = 0.5
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(goToMain), for: .touchUpInside)
+        return button
+    }()
+
+    // MARK: - Lifecycle
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+    }
+
+    private func setupUI() {
+        view.backgroundColor = .black
+
+        let backgroundView = GradientView()
+        backgroundView.colors = [UIColor(red: 0.05, green: 0.05, blue: 0.15, alpha: 1).cgColor,
+                                 UIColor(red: 0.1, green: 0.2, blue: 0.3, alpha: 1).cgColor]
+        backgroundView.frame = view.bounds
+        view.addSubview(backgroundView)
+
+        let container = UIStackView(arrangedSubviews: [titleLabel, startButton])
+        container.axis = .vertical
+        container.spacing = 40
+        container.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(container)
+
+        NSLayoutConstraint.activate([
+            container.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            container.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            container.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 30),
+
+            startButton.heightAnchor.constraint(equalToConstant: 60),
+            startButton.widthAnchor.constraint(equalToConstant: 260)
+        ])
+    }
+
+    @objc private func goToMain() {
+        let mainVC = QuantumCatViewController()
+        mainVC.modalPresentationStyle = .fullScreen
+        present(mainVC, animated: true)
     }
 }
