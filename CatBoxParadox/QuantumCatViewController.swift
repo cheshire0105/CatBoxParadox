@@ -57,12 +57,18 @@ class QuantumCatViewController: UIViewController {
 
     private let superpositionLabel: UILabel = {
         let label = UILabel()
+        //        label.text = """
+        //        🪄 양자 마법 상자!
+        //        상자를 열기 전까지는
+        //        고양이는 [둘 다] 상태예요!
+        //        (여기와 다른 차원을 동시에 여행 중!)
+        //        """
         label.text = """
-        🪄 양자 마법 상자!
-        상자를 열기 전까지는
-        고양이는 [둘 다] 상태예요!
-        (여기와 다른 차원을 동시에 여행 중!)
-        """
+           🎩 Quantum Magic Box!
+           Until opened, the cat exists in
+           [Both States] simultaneously!
+           (Journeying through multiple dimensions!)
+           """
         label.font = UIFont.systemFont(ofSize: 22, weight: .medium) // 폰트 사이즈 조정
         label.textColor = .systemTeal
         label.textAlignment = .center
@@ -73,10 +79,14 @@ class QuantumCatViewController: UIViewController {
 
     private let quantumStateLabel: GradientLabel = {
         let label = GradientLabel()
+        //        label.text = """
+        //           📦 신기한 마법 상자!
+        //           (고양이는 동시에 여러 곳에 있을 수 있어요)
+        //           """
         label.text = """
-           📦 신기한 마법 상자!
-           (고양이는 동시에 여러 곳에 있을 수 있어요)
-           """
+            📦 Mysterious Quantum Box!
+            (Cats can exist in multiple places at once)
+            """
         label.font = UIFont.systemFont(ofSize: 22, weight: .medium)
         label.textAlignment = .center
         label.numberOfLines = 0 // 여러 줄 허용
@@ -89,25 +99,37 @@ class QuantumCatViewController: UIViewController {
 
     private let observerEffectLabel: UILabel = {
         let label = UILabel()
+        //        label.text = """
+        //        👀 3초 동안 상자를 바라보면
+        //        고양이가 여기 있거나,
+        //        없던 상태에서 한 곳으로 확정돼요!
+        //
+        //        이걸 '관찰자 효과'라고 해요.
+        //        우리가 지켜보는 것만으로도
+        //        고양이의 상태가 바뀌는 거예요!
+        //        """
         label.text = """
-        👀 3초 동안 상자를 바라보면
-        고양이가 여기 있거나,
-        없던 상태에서 한 곳으로 확정돼요!
-        
-        이걸 '관찰자 효과'라고 해요.
-        우리가 지켜보는 것만으로도
-        고양이의 상태가 바뀌는 거예요!
-        """
+          👀 Stare at the box for 3 seconds to
+          collapse the cat's quantum state!
+          
+          This is called the 'Observer Effect' -
+          our mere observation determines
+          the cat's final state!
+          """
         label.font = UIFont.systemFont(ofSize: 18, weight: .medium)
         label.textColor = .systemTeal // 색상 변경
         label.textAlignment = .center
         label.numberOfLines = 0 // 다중 라인 허용
+        // 추가: 동적 폰트 사이즈 조절
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.7 // 최대 30%까지 축소
         return label
     }()
 
     private lazy var resetButton: UIButton = {
         let button = UIButton()
-        button.setTitle("🔮 다시 시도하기", for: .normal)
+        //        button.setTitle("🔮 다시 시도하기", for: .normal)
+        button.setTitle("🔮 Reset Experiment", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 22, weight: .medium)
         button.backgroundColor = .clear
         button.layer.borderColor = UIColor.systemTeal.cgColor
@@ -452,10 +474,14 @@ class QuantumCatViewController: UIViewController {
         startBoxIdleAnimation()
 
         // 7. 라벨 상태 초기화
+        //        quantumStateLabel.text = """
+        //           📦 신기한 마법 상자!
+        //           (고양이는 동시에 여러 곳에 있을 수 있어요)
+        //           """
         quantumStateLabel.text = """
-           📦 신기한 마법 상자!
-           (고양이는 동시에 여러 곳에 있을 수 있어요)
-           """
+            📦 Mysterious Quantum Box!
+            (Cats can exist in multiple places at once)
+            """
         countdownLabel.text = ""
     }
 
@@ -478,23 +504,39 @@ class QuantumCatViewController: UIViewController {
 
     // 결과 팝업 메시지 개선안
     private func showResultPopup(isPresent: Bool) {
+        //        let message = isPresent
+        //        ? """
+        //               🐾 박스 안에서 고양이 발견!
+        //               지금은 휴식을 취하고 있대요!
+        //
+        //               우리 시선이 고양이를
+        //               이곳으로 불러냈나봐요!
+        //               """
+        //        : """
+        //               🌌 고양이는 우주 여행 중!
+        //               이번엔 다른 차원에 있나 봐요!
+        //
+        //               우리가 보기 전에는
+        //               여러 곳에 있을 수도 있대요!
+        //               """
         let message = isPresent
         ? """
-               🐾 박스 안에서 고양이 발견!
-               지금은 휴식을 취하고 있대요!
-               
-               우리 시선이 고양이를
-               이곳으로 불러냈나봐요!
-               """
+             🐾 Cat detected in the box!
+             Currently taking a quantum catnap!
+             
+             Our observation anchored
+             the cat's state here!
+             """
         : """
-               🌌 고양이는 우주 여행 중!
-               이번엔 다른 차원에 있나 봐요!
-               
-               우리가 보기 전에는
-               여러 곳에 있을 수도 있대요!
-               """
+             🌌 Cat is quantum-leaping!
+             Currently exploring another dimension!
+             
+             Remember - quantum states remain
+             uncertain until observed!
+             """
         let alert = UIAlertController(
-            title: isPresent ? "상자 안에 있어요!" : "여행 중이에요!",
+            //            title: isPresent ? "상자 안에 있어요!" : "여행 중이에요!",
+            title: isPresent ? "Cat Detected!" : "Exploring the Quantum Realm!",
             message: message,
             preferredStyle: .alert
         )
@@ -536,8 +578,11 @@ class QuantumCatViewController: UIViewController {
 
             UIView.transition(with: self.quantumStateLabel, duration: 0.8, options: .transitionCrossDissolve) {
                 self.quantumStateLabel.text = isPresent
-                ? "고양이는 상자 속에 있어요! 🐾"
-                : "고양이는 다른 차원으로 놀러갔어요! 🌟"
+                //                ? "고양이는 상자 속에 있어요! 🐾"
+                //                : "고양이는 다른 차원으로 놀러갔어요! 🌟"
+
+                ? "The cat is in the box! 🐾"
+                : "The cat has quantum-leaped to another dimension! 🌟"
                 self.quantumStateLabel.gradientColors = isPresent ?
                 [UIColor.systemBlue.cgColor, UIColor(hex: "#00ff88").cgColor] :
                 [UIColor.systemPurple.cgColor, UIColor(hex: "#ff99cc").cgColor]
@@ -708,20 +753,34 @@ class IntroViewController: UIViewController {
 
     // MARK: - UI Components
     private let titleLabel: UILabel = {
+        //        let label = UILabel()
+        //        label.text = """
+        //            🌌 양자 세계에 온 걸 환영해요!
+        //
+        //            이 앱에서는 귀여운 고양이와 함께
+        //            신기한 양자 세계를 탐험할 거예요.
+        //
+        //            양자 세계에선 한 가지가
+        //            동시에 여러 곳에 있을 수도 있어요!
+        //            우리가 보기 전까지는 알 수 없죠.
+        //
+        //            버튼을 눌러서
+        //            고양이와 함께 모험을 떠나봐요!
+        //            """
         let label = UILabel()
         label.text = """
-            🌌 양자 세계에 온 걸 환영해요!
-            
-            이 앱에서는 귀여운 고양이와 함께
-            신기한 양자 세계를 탐험할 거예요.
-            
-            양자 세계에선 한 가지가
-            동시에 여러 곳에 있을 수도 있어요!
-            우리가 보기 전까지는 알 수 없죠.
-            
-            버튼을 눌러서
-            고양이와 함께 모험을 떠나봐요!
-            """
+             🌌 Welcome to the Quantum Realm!
+             
+             You're about to explore the mysterious
+             quantum world with a special cat.
+             
+             In this realm, objects can exist in
+             multiple states simultaneously -
+             until someone observes them!
+             
+             Ready to see how your observation
+             affects reality?
+             """
 
         label.font = UIFont.systemFont(ofSize: 18, weight: .medium)
         label.textColor = .systemTeal
@@ -734,7 +793,8 @@ class IntroViewController: UIViewController {
 
     private let startButton: UIButton = {
         let button = UIButton()
-        button.setTitle("상자 바라보러 가기", for: .normal)
+        //        button.setTitle("상자 바라보러 가기", for: .normal)
+        button.setTitle("Open Quantum Box", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 22, weight: .medium)
         button.backgroundColor = .systemTeal
         button.layer.cornerRadius = 15
@@ -807,10 +867,14 @@ class TutorialViewController: UIViewController {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "🔍 마법상자 사용법"
+        //        label.text = "🔍 마법상자 사용법"
+        label.text = "🔍 How to Use the Quantum Box"
         label.font = UIFont.systemFont(ofSize: 22, weight: .medium)
         label.textColor = .systemTeal
         label.textAlignment = .center
+        // 추가: 동적 폰트 사이즈 조절
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.7 // 최대 30%까지 축소
         return label
     }()
 
@@ -827,26 +891,49 @@ class TutorialViewController: UIViewController {
         paragraphStyle.lineBreakMode = .byWordWrapping
         paragraphStyle.paragraphSpacing = 8
 
+        //        let attributedString = NSMutableAttributedString(
+        //            string: """
+        //                    상자를 3초 동안 바라보면, 고양이가 여기저기 있던 상태에서 한 곳에 나타나요.
+        //                    이걸 '관찰자 효과'라고 해요.
+        //                    우리가 고양이를 바라보는 순간, 고양이의 상태가 정해지는 거예요.
+        //                    신기하죠? 우리의 '관찰'이 고양이의 세계에 영향을 미친다니요!
+        //
+        //                    이건 사실, 아주 작은 미시세계에서 일어나는 특별한 일이에요.
+        //                    고양이가 들어 있는 상자는 '양자 세계'를 보여주는 마법 같은 도구라고 할 수 있어요.
+        //
+        //                    양자의 세계에서는, 어떤 물체가 동시에 여러 곳에 있을 수도 있고, 여러 가지 상태를 동시에 가질 수도 있어요.
+        //                    하지만 누군가가 그것을 '관찰'하는 순간, 그 상태는 하나로 정해져 버리죠.
+        //
+        //                    그래서 상자를 바라보면 고양이의 상태가 결정되는 거고,
+        //                    상자를 보지 않으면 고양이는 여전히 여러 곳을 동시에 여행하고 있을지도 몰라요.
+        //
+        //                    이런 놀라운 현상은 우리가 살고 있는 큰 세계가 아니라,
+        //                    아주 작은 미시세계에서만 일어나는 일이에요.
+        //                    고양이는 이 작은 세계의 비밀을 알려주는 역할을 하고 있답니다!
+        //                    """,
         let attributedString = NSMutableAttributedString(
             string: """
-                    상자를 3초 동안 바라보면, 고양이가 여기저기 있던 상태에서 한 곳에 나타나요.  
-                    이걸 '관찰자 효과'라고 해요.  
-                    우리가 고양이를 바라보는 순간, 고양이의 상태가 정해지는 거예요.  
-                    신기하죠? 우리의 '관찰'이 고양이의 세계에 영향을 미친다니요!
-
-                    이건 사실, 아주 작은 미시세계에서 일어나는 특별한 일이에요.  
-                    고양이가 들어 있는 상자는 '양자 세계'를 보여주는 마법 같은 도구라고 할 수 있어요.  
-
-                    양자의 세계에서는, 어떤 물체가 동시에 여러 곳에 있을 수도 있고, 여러 가지 상태를 동시에 가질 수도 있어요.  
-                    하지만 누군가가 그것을 '관찰'하는 순간, 그 상태는 하나로 정해져 버리죠.  
-
-                    그래서 상자를 바라보면 고양이의 상태가 결정되는 거고,  
-                    상자를 보지 않으면 고양이는 여전히 여러 곳을 동시에 여행하고 있을지도 몰라요.  
-
-                    이런 놀라운 현상은 우리가 살고 있는 큰 세계가 아니라,  
-                    아주 작은 미시세계에서만 일어나는 일이에요.  
-                    고양이는 이 작은 세계의 비밀을 알려주는 역할을 하고 있답니다!
-                    """,
+                        Staring at the box for 3 seconds collapses the cat's quantum state.  
+                        This demonstrates the 'Observer Effect' - reality isn't fixed until observed.  
+                        Our observation literally shapes the cat's quantum reality!
+                        
+                        This mirrors phenomena in the microscopic quantum world.  
+                        The box represents a 'quantum system' where normal rules don't apply.  
+                        
+                        In quantum physics, particles can:
+                        • Exist in multiple states
+                        • Be in multiple places
+                        • Tunnel through barriers
+                        ...all simultaneously!
+                        
+                        But when measured, they pick one concrete state.  
+                        By opening the box, you're essentially 
+                        making a quantum measurement!
+                        
+                        While our macro-world doesn't work this way,  
+                        this experiment helps visualize one of  
+                        quantum physics' most fascinating aspects!
+                        """,
             attributes: [
                 .paragraphStyle: paragraphStyle,
                 .foregroundColor: UIColor.systemTeal,
@@ -862,7 +949,8 @@ class TutorialViewController: UIViewController {
 
     private let closeButton: UIButton = {
         let button = UIButton()
-        button.setTitle("닫기", for: .normal)
+        //        button.setTitle("닫기", for: .normal)
+        button.setTitle("Close", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 22, weight: .medium)
         button.backgroundColor = .clear
         button.layer.borderColor = UIColor.systemTeal.cgColor
