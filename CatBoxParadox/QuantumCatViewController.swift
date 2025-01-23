@@ -1,6 +1,7 @@
 import UIKit
 import ARKit
 import AudioToolbox
+import Lottie
 
 class QuantumCatViewController: UIViewController {
 
@@ -35,14 +36,32 @@ class QuantumCatViewController: UIViewController {
         return layer
     }()
 
+    // Lottie 애니메이션 뷰
+    private let catAnimationView: LottieAnimationView = {
+        let view = LottieAnimationView(name: "cat-box") // cat-box.json 파일 필요
+        view.loopMode = .playOnce
+        view.animationSpeed = 0.8
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.isHidden = true
+        return view
+    }()
+
+    private let emptyBoxAnimationView: LottieAnimationView = {
+        let view = LottieAnimationView(name: "empty-box") // empty-box.json 파일 필요
+        view.loopMode = .playOnce
+        view.animationSpeed = 0.8
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.isHidden = true
+        return view
+    }()
+
     private let superpositionLabel: UILabel = {
         let label = UILabel()
         label.text = """
-        🌀 양자 중첩의 마법!
+        🪄 양자 마법 상자!
         상자를 열기 전까지는
-        고양이가 살아있을까요? 죽었을까요?
-        정답은 둘 다 맞아요!
-        (슈뢰딩거의 상자: 1935년)
+        고양이가 [둘 다] 상태예요!
+        (슈뢰딩거 할아버지의 특별한 실험)
         """
         label.font = UIFont(name: "DungGeunMo", size: 22) // 폰트 사이즈 조정
         label.textColor = .systemTeal
@@ -55,9 +74,9 @@ class QuantumCatViewController: UIViewController {
     private let quantumStateLabel: GradientLabel = {
         let label = GradientLabel()
         label.text = """
-         📦 상자 상태
-         [양자 중첩 모드]
-         """
+        📦 상자 상태
+        [양자 물질 변환 모드]
+        """
         label.font = UIFont(name: "DungGeunMo", size: 32)
         label.textAlignment = .center
         label.gradientColors = [UIColor.systemTeal.cgColor, UIColor.systemPurple.cgColor]
@@ -66,12 +85,12 @@ class QuantumCatViewController: UIViewController {
 
     private let observerEffectLabel: UILabel = {
         let label = UILabel()
-        label.text = """
-        👀 관측의 힘!
-        3초 동안 상자를 똑바로 바라보면
-        마법 상자가 열리면서
-        고양이의 운명이 결정됩니다!
-        """
+           label.text = """
+           👀 신비한 관찰자의 힘!
+           3초 동안 상자를 집중해서 보면
+           양자 상태가 변해요!
+           고양이가 있을까요? 없을까요?
+           """
         label.font = UIFont(name: "DungGeunMo", size: 18)
         label.textColor = .systemTeal // 색상 변경
         label.textAlignment = .center
@@ -115,7 +134,7 @@ class QuantumCatViewController: UIViewController {
         emitter.renderMode = .additive
 
         let cell = CAEmitterCell()
-        cell.contents = UIImage(systemName: "sparkle")?.cgImage
+//        cell.contents = UIImage(systemName: "sparkle")?.cgImage
         cell.birthRate = 50
         cell.lifetime = 3
         cell.velocity = 50
@@ -161,6 +180,12 @@ class QuantumCatViewController: UIViewController {
         configureQuantumUI()
         setupARKit()
         resetQuantumExperiment()
+
+        // Lottie 애니메이션 사전 로드
+        catAnimationView.contentMode = .scaleAspectFit
+        emptyBoxAnimationView.contentMode = .scaleAspectFit
+        quantumBoxLabel.isHidden = false // 상자 다시 보이기
+           startBoxIdleAnimation()
     }
 
     override func viewDidLayoutSubviews() {
@@ -182,6 +207,8 @@ class QuantumCatViewController: UIViewController {
         quantumContainer.layer.addSublayer(quantumGlowLayer)
         quantumContainer.addSubview(quantumBoxLabel)
         view.addSubview(quantumContainer)
+        quantumContainer.addSubview(catAnimationView)
+           quantumContainer.addSubview(emptyBoxAnimationView)
 
         let hologramOverlay = HologramView()
         hologramOverlay.frame = quantumContainer.frame
@@ -227,6 +254,20 @@ class QuantumCatViewController: UIViewController {
             infoButton.heightAnchor.constraint(equalToConstant: 40)
         ])
 
+
+        NSLayoutConstraint.activate([
+            catAnimationView.centerXAnchor.constraint(equalTo: quantumContainer.centerXAnchor),
+            catAnimationView.centerYAnchor.constraint(equalTo: quantumContainer.centerYAnchor, constant: 40), // ▼ 40포인트 아래로
+            catAnimationView.widthAnchor.constraint(equalToConstant: 400),
+            catAnimationView.heightAnchor.constraint(equalToConstant: 400),
+
+            emptyBoxAnimationView.centerXAnchor.constraint(equalTo: quantumContainer.centerXAnchor),
+            emptyBoxAnimationView.centerYAnchor.constraint(equalTo: quantumContainer.centerYAnchor, constant: 40), // ▼ 동일하게 적용
+            emptyBoxAnimationView.widthAnchor.constraint(equalToConstant: 400),
+            emptyBoxAnimationView.heightAnchor.constraint(equalToConstant: 400)
+        ])
+
+
         quantumContainer.layer.addSublayer(particleEmitter)
         startBoxIdleAnimation()
     }
@@ -263,7 +304,7 @@ class QuantumCatViewController: UIViewController {
         configuration.isWorldTrackingEnabled = true
         arSceneView.session.run(configuration)
 
-        //        setupDebugUI()
+//        setupDebugUI()
     }
 
     // MARK: - Face Tracking Logic
@@ -366,34 +407,53 @@ class QuantumCatViewController: UIViewController {
 
     // MARK: - Quantum Interaction Logic
     @objc private func resetQuantumExperiment() {
-        // 세션 정지 및 재시작 로직 보강
+        // 1. 진행 중인 모든 애니메이션 강제 종료
+        boxOpenAnimator?.stopAnimation(true)
+        boxOpenAnimator?.finishAnimation(at: .current)
+        boxOpenAnimator = nil
+
+        // 2. 상자 UI 상태 완전 초기화
+        quantumBoxLabel.layer.removeAllAnimations()
+        quantumBoxLabel.transform = .identity // ⭐️ 트랜스폼 초기화
+        quantumBoxLabel.alpha = 1.0 // ⭐️ 알파값 복원
+        quantumBoxLabel.isHidden = false
+
+        // 3. ARKit 트래킹 관련 상태 초기화
+        isUserLooking = false
+        observationTimer?.invalidate()
+        observationTimer = nil
+        lastDetectionTime = Date()
+
+        // 4. AR 세션 재시작 (트래킹 유지)
         arSceneView.session.pause()
         let configuration = ARFaceTrackingConfiguration()
-        arSceneView.session.run(configuration, options: [.resetTracking, .removeExistingAnchors])
+        arSceneView.session.run(configuration, options: [.removeExistingAnchors])
 
-        // 상태 값 초기화 추가
-        isUserLooking = false
-        lastDetectionTime = Date()
-        observationTimer?.invalidate()
+        // 5. Lottie 애니메이션 초기화
+        [catAnimationView, emptyBoxAnimationView].forEach {
+            $0.stop()
+            $0.isHidden = true
+        }
 
-        quantumBoxLabel.text = "📦"
-        quantumStateLabel.text = ""
-        observerEffectLabel.text = "3초 응시 시 상태 결정"
-        countdownLabel.text = ""
-        debugInfoLabel.text = ""
+        // 6. 상자 기본 애니메이션 재시작
         startBoxIdleAnimation()
+
+        // 7. 라벨 상태 초기화
+        quantumStateLabel.text = "[양자 물질 변환 모드]"
+        countdownLabel.text = ""
     }
 
     @objc private func showQuantumTutorial() {
         let alert = UIAlertController(
-            title: "🌟 양자 놀이터 안내",
+            title: "🔍 양자 탐험 안내",
             message: """
-                  1. 상자를 3초 동안 똑바로 보세요!
-                  2. 상자가 열리면 결과가 나옵니다
-                  3. 결과는 매번 달라질 수 있어요!
-                  (양자 세계는 항상 변화중이에요)
-                  """,
+            1. 상자를 3초 동안 똑바로 보세요!
+            2. 관찰을 통해 고양이의 위치를 확인
+            3. 결과는 매번 달라지는 신비한 양자 세계!
+            (고양이는 동시에 여러 곳에 있을 수 있어요)
+            """,
             preferredStyle: .alert
+
         )
         alert.addAction(UIAlertAction(title: "확인", style: .default))
         present(alert, animated: true)
@@ -407,22 +467,21 @@ class QuantumCatViewController: UIViewController {
     }
 
     // 결과 팝업 메시지 개선안
-    private func showResultPopup(isAlive: Bool) {
-        let message = isAlive ?
-      """
-      🎉 상자가 열렸어요!
-      고양이가 살아있네요!
-      (당신의 관찰이 현실을 만들었어요!)
-      """ :
-      """
-      💫 양자 세계의 신비!
-      아쉽게도 고양이는...
-      하지만 다음 실험에선 달라질 수 있어요!
-      """
-
+    private func showResultPopup(isPresent: Bool) {
+        let message = isPresent ?
+        """
+        🎉 상자 안을 확인했어요!
+        귀여운 고양이가 나타났어요!
+        (관찰로 양자 상태가 확정되었습니다)
+        """ :
+        """
+        🌈 신비한 양자 현상!
+        고양이는 다른 곳으로 이동했어요!
+        다음 관찰에선 달라질 거예요!
+        """
 
         let alert = UIAlertController(
-            title: isAlive ? "🐱 생존 발견!" : "🌀 새로운 가능성",
+            title: isPresent ? "🐾 고양이 발견!" : "🌟 우주 모험 중",
             message: message,
             preferredStyle: .alert
         )
@@ -432,10 +491,10 @@ class QuantumCatViewController: UIViewController {
 
     // MARK: - Quantum Interaction Logic
     private func collapseWaveFunction() {
-        let isAlive = Bool.random()
+        let isPresent = Bool.random()
         playSoundEffect(name: "quantum_collapse")
 
-        // ARKit 세션 일시 정지 추가
+        // ARKit 세션 일시 정지
         arSceneView.session.pause()
 
         boxOpenAnimator?.stopAnimation(true)
@@ -445,21 +504,31 @@ class QuantumCatViewController: UIViewController {
         }
 
         boxOpenAnimator?.addCompletion { _ in
-            self.quantumBoxLabel.text = isAlive ? "🐈‍⬛✨" : "💀☠️"
-            self.quantumBoxLabel.transform = .identity
-            self.quantumBoxLabel.alpha = 1.0
+                self.quantumBoxLabel.isHidden = true // 기존 상자 숨기기
+
+                // 애니메이션 초기화
+                self.catAnimationView.stop()
+                self.emptyBoxAnimationView.stop()
+                self.catAnimationView.isHidden = true
+                self.emptyBoxAnimationView.isHidden = true
+
+                if isPresent {
+                    self.catAnimationView.isHidden = false
+                    self.catAnimationView.play()
+                    
+                } else {
+                    self.emptyBoxAnimationView.isHidden = false
+                    self.emptyBoxAnimationView.play()
+                }
 
             UIView.transition(with: self.quantumStateLabel, duration: 0.8, options: .transitionCrossDissolve) {
-                self.quantumStateLabel.text = isAlive ? "Alive 🟢" : "Dead 🔴"
-                self.quantumStateLabel.gradientColors = isAlive ?
-                [UIColor.systemGreen.cgColor, UIColor(hex: "#00ff88").cgColor] :
-                [UIColor.systemRed.cgColor, UIColor(hex: "#ff0066").cgColor]
+                self.quantumStateLabel.text = isPresent ? "In the Box 🐾" : "Out Exploring 🌟"
+                self.quantumStateLabel.gradientColors = isPresent ?
+                [UIColor.systemBlue.cgColor, UIColor(hex: "#00ff88").cgColor] :
+                [UIColor.systemPurple.cgColor, UIColor(hex: "#ff99cc").cgColor]
             }
 
-            self.showResultPopup(isAlive: isAlive)
-            self.triggerConfetti(isAlive: isAlive)
-
-            // 타이머 및 상태 초기화 추가
+            self.showResultPopup(isPresent: isPresent)
             self.observationTimer?.invalidate()
             self.isUserLooking = false
         }
@@ -467,14 +536,14 @@ class QuantumCatViewController: UIViewController {
         boxOpenAnimator?.startAnimation()
     }
 
-    private func triggerConfetti(isAlive: Bool) {
+    private func triggerConfetti(isPresent: Bool) {
         let confetti = CAEmitterLayer()
         confetti.emitterPosition = CGPoint(x: view.center.x, y: -50)
         confetti.emitterShape = .line
         confetti.emitterSize = CGSize(width: view.frame.width, height: 1)
 
         let cell = CAEmitterCell()
-        cell.contents = UIImage(systemName: isAlive ? "leaf.fill" : "flame.fill")?.cgImage
+//        cell.contents = UIImage(systemName: isPresent ? "pawprint.fill" : "sparkles")?.cgImage
         cell.birthRate = 100
         cell.lifetime = 5
         cell.velocity = 150
@@ -484,7 +553,7 @@ class QuantumCatViewController: UIViewController {
         cell.spinRange = 3
         cell.scale = 0.2
         cell.scaleRange = 0.1
-        cell.color = isAlive ? UIColor.systemGreen.cgColor : UIColor.systemRed.cgColor
+        cell.color = isPresent ? UIColor.systemBlue.cgColor : UIColor.systemPurple.cgColor
 
         confetti.emitterCells = [cell]
         view.layer.addSublayer(confetti)

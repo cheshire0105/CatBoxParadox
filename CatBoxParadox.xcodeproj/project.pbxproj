@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		FFFCC8862D41EF8A001F0B8D /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = FFFCC8852D41EF8A001F0B8D /* Lottie */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		FFFCC8662D40C0B1001F0B8D /* CatBoxParadox.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CatBoxParadox.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FFFCC8862D41EF8A001F0B8D /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +83,7 @@
 			);
 			name = CatBoxParadox;
 			packageProductDependencies = (
+				FFFCC8852D41EF8A001F0B8D /* Lottie */,
 			);
 			productName = CatBoxParadox;
 			productReference = FFFCC8662D40C0B1001F0B8D /* CatBoxParadox.app */;
@@ -107,6 +113,9 @@
 			);
 			mainGroup = FFFCC85D2D40C0B1001F0B8D;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				FFFCC8842D41EF8A001F0B8D /* XCRemoteSwiftPackageReference "lottie-ios" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = FFFCC8672D40C0B1001F0B8D /* Products */;
 			projectDirPath = "";
@@ -337,6 +346,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		FFFCC8842D41EF8A001F0B8D /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		FFFCC8852D41EF8A001F0B8D /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FFFCC8842D41EF8A001F0B8D /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = FFFCC85E2D40C0B1001F0B8D /* Project object */;
 }
