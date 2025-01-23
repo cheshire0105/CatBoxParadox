@@ -38,9 +38,11 @@ class QuantumCatViewController: UIViewController {
     private let superpositionLabel: UILabel = {
         let label = UILabel()
         label.text = """
-        슈뢰딩거의 고양이 사고실험 (1935)
-        관측 전까지 고양이는 살아있음과 죽음의
-        양자 중첩 상태에 있습니다
+        🌀 양자 중첩의 마법!
+        상자를 열기 전까지는
+        고양이가 살아있을까요? 죽었을까요?
+        정답은 둘 다 맞아요!
+        (슈뢰딩거의 상자: 1935년)
         """
         label.font = UIFont(name: "DungGeunMo", size: 22) // 폰트 사이즈 조정
         label.textColor = .systemTeal
@@ -52,6 +54,10 @@ class QuantumCatViewController: UIViewController {
 
     private let quantumStateLabel: GradientLabel = {
         let label = GradientLabel()
+        label.text = """
+         📦 상자 상태
+         [양자 중첩 모드]
+         """
         label.font = UIFont(name: "DungGeunMo", size: 32)
         label.textAlignment = .center
         label.gradientColors = [UIColor.systemTeal.cgColor, UIColor.systemPurple.cgColor]
@@ -61,9 +67,10 @@ class QuantumCatViewController: UIViewController {
     private let observerEffectLabel: UILabel = {
         let label = UILabel()
         label.text = """
-        관측자 효과: 3초 응시 시
-        파동함수 붕괴로 상태 결정
-        (코펜하겐 해석)
+        👀 관측의 힘!
+        3초 동안 상자를 똑바로 바라보면
+        마법 상자가 열리면서
+        고양이의 운명이 결정됩니다!
         """
         label.font = UIFont(name: "DungGeunMo", size: 18)
         label.textColor = .systemTeal // 색상 변경
@@ -256,7 +263,7 @@ class QuantumCatViewController: UIViewController {
         configuration.isWorldTrackingEnabled = true
         arSceneView.session.run(configuration)
 
-//        setupDebugUI()
+        //        setupDebugUI()
     }
 
     // MARK: - Face Tracking Logic
@@ -379,8 +386,13 @@ class QuantumCatViewController: UIViewController {
 
     @objc private func showQuantumTutorial() {
         let alert = UIAlertController(
-            title: "양자 역학 튜토리얼",
-            message: "1. 3초 후 자동으로 결과가 결정됩니다\n2. 결과는 무작위 양자 붕괴 현상입니다",
+            title: "🌟 양자 놀이터 안내",
+            message: """
+                  1. 상자를 3초 동안 똑바로 보세요!
+                  2. 상자가 열리면 결과가 나옵니다
+                  3. 결과는 매번 달라질 수 있어요!
+                  (양자 세계는 항상 변화중이에요)
+                  """,
             preferredStyle: .alert
         )
         alert.addAction(UIAlertAction(title: "확인", style: .default))
@@ -397,17 +409,20 @@ class QuantumCatViewController: UIViewController {
     // 결과 팝업 메시지 개선안
     private func showResultPopup(isAlive: Bool) {
         let message = isAlive ?
-        """
-        살아있는 상태 관측 성공!
-        (양자 중첩 상태 붕괴)
-        """ :
-        """
-        사망 상태 확인됨
-        (파동함수 최종 수렴)
-        """
+      """
+      🎉 상자가 열렸어요!
+      고양이가 살아있네요!
+      (당신의 관찰이 현실을 만들었어요!)
+      """ :
+      """
+      💫 양자 세계의 신비!
+      아쉽게도 고양이는...
+      하지만 다음 실험에선 달라질 수 있어요!
+      """
+
 
         let alert = UIAlertController(
-            title: isAlive ? "🐱 생존!" : "💀 사망",
+            title: isAlive ? "🐱 생존 발견!" : "🌀 새로운 가능성",
             message: message,
             preferredStyle: .alert
         )
