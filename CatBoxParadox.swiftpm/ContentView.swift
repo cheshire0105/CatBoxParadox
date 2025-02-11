@@ -141,7 +141,25 @@ class QuantumCatViewController: UIViewController {
     private var quizQuestions: [QuizQuestion] = []
     private var currentQuizIndex: Int = 0
 
+    // MARK: - Background View
+    // 배경 그라데이션 뷰를 프로퍼티로 선언하여 나중에 프레임 업데이트 가능
+    private let backgroundView: GradientView = {
+        let view = GradientView()
+        view.colors = [
+            UIColor(red: 0.05, green: 0.05, blue: 0.15, alpha: 1).cgColor,
+            UIColor(red: 0.1, green: 0.2, blue: 0.3, alpha: 1).cgColor
+        ]
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
     // MARK: - Lifecycle
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        configureQuantumUI()
+        resetQuantumExperiment()
+    }
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         startBoxIdleAnimation()
@@ -153,23 +171,28 @@ class QuantumCatViewController: UIViewController {
         captureSession.stopRunning()
     }
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        configureQuantumUI()
-        resetQuantumExperiment()
+    // 화면 크기 변경 시 previewLayer의 프레임을 업데이트 (Mac 모드 대응)
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        // setupCamera()에서 추가한 previewLayer가 있다면 프레임을 갱신
+        if let previewLayer = (view.layer.sublayers?.first { $0 is AVCaptureVideoPreviewLayer }) as? AVCaptureVideoPreviewLayer {
+            previewLayer.frame = view.bounds
+        }
     }
 
-    // MARK: - UI Configuration (기존 디자인 유지)
+    // MARK: - UI Configuration (업데이트된 오토레이아웃 적용)
     private func configureQuantumUI() {
         view.backgroundColor = .black
 
-        let backgroundView = GradientView()
-        backgroundView.colors = [
-            UIColor(red: 0.05, green: 0.05, blue: 0.15, alpha: 1).cgColor,
-            UIColor(red: 0.1, green: 0.2, blue: 0.3, alpha: 1).cgColor
-        ]
-        backgroundView.frame = view.bounds
+        // 배경 뷰를 추가하고 제약조건을 통해 전체에 고정
         view.addSubview(backgroundView)
+        NSLayoutConstraint.activate([
+            backgroundView.topAnchor.constraint(equalTo: view.topAnchor),
+            backgroundView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            backgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            backgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+
         view.addSubview(infoButton)
         view.bringSubviewToFront(infoButton)
 
@@ -190,17 +213,21 @@ class QuantumCatViewController: UIViewController {
         view.addSubview(stackView)
         view.addSubview(countdownLabel)
 
+        // 기존 고정 값 대신 오토레이아웃 제약조건 사용
         NSLayoutConstraint.activate([
+            // quantumContainer를 화면 중앙에 배치 (세로 오프셋 -150)
             quantumContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             quantumContainer.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -150),
             quantumContainer.widthAnchor.constraint(equalToConstant: 250),
             quantumContainer.heightAnchor.constraint(equalToConstant: 250),
 
+            // 상자 이미지 뷰는 quantumContainer 내부 중앙(오프셋 40)
             quantumBoxImageView.centerXAnchor.constraint(equalTo: quantumContainer.centerXAnchor),
             quantumBoxImageView.centerYAnchor.constraint(equalTo: quantumContainer.centerYAnchor, constant: 40),
             quantumBoxImageView.widthAnchor.constraint(equalToConstant: 400),
             quantumBoxImageView.heightAnchor.constraint(equalToConstant: 400),
 
+            // stackView (상태 레이블, 관찰 설명, 리셋 버튼) 배치
             stackView.topAnchor.constraint(equalTo: quantumContainer.bottomAnchor, constant: 30),
             stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             stackView.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 30),
@@ -212,6 +239,7 @@ class QuantumCatViewController: UIViewController {
             countdownLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             countdownLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: -200),
 
+            // catImageView, emptyBoxImageView는 quantumContainer 내부 중앙(오프셋 40)
             catImageView.centerXAnchor.constraint(equalTo: quantumContainer.centerXAnchor),
             catImageView.centerYAnchor.constraint(equalTo: quantumContainer.centerYAnchor, constant: 40),
             catImageView.widthAnchor.constraint(equalToConstant: 400),
@@ -222,6 +250,7 @@ class QuantumCatViewController: UIViewController {
             emptyBoxImageView.widthAnchor.constraint(equalToConstant: 400),
             emptyBoxImageView.heightAnchor.constraint(equalToConstant: 400),
 
+            // infoButton는 상단 우측에 배치
             infoButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
             infoButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
             infoButton.widthAnchor.constraint(equalToConstant: 40),
@@ -229,7 +258,7 @@ class QuantumCatViewController: UIViewController {
         ])
     }
 
-    // MARK: - Camera Setup
+    // MARK: - Camera Setup (기존 코드 유지)
     private func setupCamera() {
         guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front),
               let input = try? AVCaptureDeviceInput(device: device) else {
@@ -247,14 +276,14 @@ class QuantumCatViewController: UIViewController {
         }
 
         let previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
-        previewLayer.frame = view.bounds
         previewLayer.videoGravity = .resizeAspectFill
+        // previewLayer의 프레임은 viewDidLayoutSubviews()에서 갱신합니다.
         view.layer.insertSublayer(previewLayer, at: 0)
 
         captureSession.startRunning()
     }
 
-    // MARK: - Animation
+    // MARK: - Animation (기존 코드 유지)
     private func startBoxIdleAnimation() {
         let shake = CAKeyframeAnimation(keyPath: "transform.rotation.z")
         shake.values = [-0.05, 0.05, -0.03, 0.03, 0]
@@ -272,7 +301,7 @@ class QuantumCatViewController: UIViewController {
         quantumGlowLayer.add(glow, forKey: "glowPulse")
     }
 
-    // MARK: - Face Detection Handling
+    // MARK: - Face Detection Handling (기존 코드 유지)
     private func startCountdown() {
         detectionStartTime = Date()
 
@@ -292,7 +321,7 @@ class QuantumCatViewController: UIViewController {
         RunLoop.main.add(faceDetectionTimer!, forMode: .common)
     }
 
-    // MARK: - Quantum Interaction Logic
+    // MARK: - Quantum Interaction Logic (기존 코드 유지)
     @objc private func resetQuantumExperiment() {
         boxOpenAnimator?.stopAnimation(true)
         quantumBoxImageView.layer.removeAllAnimations()
@@ -353,7 +382,7 @@ class QuantumCatViewController: UIViewController {
         boxOpenAnimator?.startAnimation()
     }
 
-    // MARK: - Sound & Alert Utilities
+    // MARK: - Sound & Alert Utilities (기존 코드 유지)
     private func playSoundEffect(name: String) {
         guard let url = Bundle.main.url(forResource: name, withExtension: "wav") else { return }
         var soundID: SystemSoundID = 0
@@ -389,9 +418,7 @@ class QuantumCatViewController: UIViewController {
         present(prompt, animated: true)
     }
 
-    // MARK: - Quiz Logic
-
-    // 퀴즈 시작: 전체 질문 풀에서 3개를 랜덤 선택
+    // MARK: - Quiz Logic (기존 코드 유지)
     private func startQuiz() {
         let allQuestions: [QuizQuestion] = [
             QuizQuestion(
@@ -413,13 +440,11 @@ class QuantumCatViewController: UIViewController {
                 explanation: "According to quantum theory, before observation, the cat exists in a superposition – both alive and dead."
             )
         ]
-        // 랜덤하게 3문제를 선택
         quizQuestions = Array(allQuestions.shuffled().prefix(3))
         currentQuizIndex = 0
         showNextQuizQuestion()
     }
 
-    // 다음 퀴즈 문제 표시 (퀴즈가 모두 끝나면 종료 메시지)
     private func showNextQuizQuestion() {
         guard currentQuizIndex < quizQuestions.count else {
             let alert = UIAlertController(title: "Quiz Completed", message: "Thanks for taking the quiz!", preferredStyle: .alert)
@@ -438,7 +463,6 @@ class QuantumCatViewController: UIViewController {
         present(quizAlert, animated: true)
     }
 
-    // 퀴즈 정답 확인 및 해설 표시 후 다음 문제 진행
     private func showQuizAnswer(isCorrect: Bool, explanation: String) {
         let title = isCorrect ? "Correct!" : "Incorrect"
         let message = isCorrect ? "Yes! That's correct." : "Incorrect. \(explanation)"
@@ -684,25 +708,12 @@ extension UIColor {
 }
 
 import UIKit
+import SwiftUI
 
 class IntroViewController: UIViewController {
 
     // MARK: - UI Components
     private let titleLabel: UILabel = {
-        //        let label = UILabel()
-        //        label.text = """
-        //            🌌 양자 세계에 온 걸 환영해요!
-        //
-        //            이 앱에서는 귀여운 고양이와 함께
-        //            신기한 양자 세계를 탐험할 거예요.
-        //
-        //            양자 세계에선 한 가지가
-        //            동시에 여러 곳에 있을 수도 있어요!
-        //            우리가 보기 전까지는 알 수 없죠.
-        //
-        //            버튼을 눌러서
-        //            고양이와 함께 모험을 떠나봐요!
-        //            """
         let label = UILabel()
         label.text = """
              🌌 Welcome to the Quantum Realm!
@@ -717,7 +728,6 @@ class IntroViewController: UIViewController {
              Ready to see how your observation
              affects reality?
              """
-
         label.font = UIFont.systemFont(ofSize: 18, weight: .medium)
         label.textColor = .systemTeal
         label.textAlignment = .center
@@ -729,7 +739,6 @@ class IntroViewController: UIViewController {
 
     private let startButton: UIButton = {
         let button = UIButton()
-        //        button.setTitle("상자 바라보러 가기", for: .normal)
         button.setTitle("Open Quantum Box", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 22, weight: .medium)
         button.backgroundColor = .systemTeal
@@ -749,25 +758,40 @@ class IntroViewController: UIViewController {
     }
 
     private func setupUI() {
+        // 배경색은 블랙
         view.backgroundColor = .black
 
+        // 1. 배경 그라데이션 뷰를 추가하고 오토레이아웃 제약조건을 설정하여 뷰 전체에 고정
         let backgroundView = GradientView()
-        backgroundView.colors = [UIColor(red: 0.05, green: 0.05, blue: 0.15, alpha: 1).cgColor,
-                                 UIColor(red: 0.1, green: 0.2, blue: 0.3, alpha: 1).cgColor]
-        backgroundView.frame = view.bounds
+        backgroundView.colors = [
+            UIColor(red: 0.05, green: 0.05, blue: 0.15, alpha: 1).cgColor,
+            UIColor(red: 0.1, green: 0.2, blue: 0.3, alpha: 1).cgColor
+        ]
+        backgroundView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(backgroundView)
+        NSLayoutConstraint.activate([
+            backgroundView.topAnchor.constraint(equalTo: view.topAnchor),
+            backgroundView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            backgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            backgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
 
+        // 2. 중앙에 배치할 스택 뷰 (제목 레이블과 시작 버튼)
         let container = UIStackView(arrangedSubviews: [titleLabel, startButton])
         container.axis = .vertical
         container.spacing = 40
         container.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(container)
-
         NSLayoutConstraint.activate([
             container.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             container.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            // 창의 가로 크기에 따라 최소 좌우 여백을 부여
             container.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 30),
+            container.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -30)
+        ])
 
+        // 3. 시작 버튼의 고정 크기 설정
+        NSLayoutConstraint.activate([
             startButton.heightAnchor.constraint(equalToConstant: 60),
             startButton.widthAnchor.constraint(equalToConstant: 260)
         ])
@@ -776,15 +800,16 @@ class IntroViewController: UIViewController {
     @objc private func goToMain() {
         let mainVC = QuantumCatViewController()
 
-        // 백 버튼 아이템 커스텀 설정
+        // 백 버튼 커스터마이즈 (텍스트 공백)
         let backItem = UIBarButtonItem()
-        backItem.title = "" // 백 버튼 텍스트 공백
-        backItem.tintColor = .systemTeal // 색상은 선택사항
+        backItem.title = ""
+        backItem.tintColor = .systemTeal
         navigationItem.backBarButtonItem = backItem
 
         navigationController?.pushViewController(mainVC, animated: true)
     }
 }
+
 
 // 새로 추가할 TutorialViewController 클래스
 class TutorialViewController: UIViewController {
