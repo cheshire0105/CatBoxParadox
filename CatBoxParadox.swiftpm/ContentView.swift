@@ -2,10 +2,15 @@ import UIKit
 import SwiftUI
 import ARKit
 import AudioToolbox
-
-import UIKit
 import AVFoundation
-import AudioToolbox
+
+// MARK: - QuizQuestion 모델 (퀴즈 문제 데이터)
+struct QuizQuestion {
+    let question: String
+    let choices: [String]
+    let correctAnswerIndex: Int
+    let explanation: String
+}
 
 class QuantumCatViewController: UIViewController {
 
@@ -29,7 +34,6 @@ class QuantumCatViewController: UIViewController {
         return imageView
     }()
 
-    // infoButton 정의 부분 수정
     private lazy var infoButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false // 이 줄 추가!!!
@@ -127,12 +131,17 @@ class QuantumCatViewController: UIViewController {
         return label
     }()
 
-    // MARK: - Face Detection Properties (변경된 부분)
+    // MARK: - Face Detection Properties
     private let captureSession = AVCaptureSession()
     private var faceDetectionTimer: Timer?
     private var detectionStartTime: Date?
     private var boxOpenAnimator: UIViewPropertyAnimator?
 
+    // MARK: - Quiz Properties
+    private var quizQuestions: [QuizQuestion] = []
+    private var currentQuizIndex: Int = 0
+
+    // MARK: - Lifecycle
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         startBoxIdleAnimation()
@@ -144,7 +153,6 @@ class QuantumCatViewController: UIViewController {
         captureSession.stopRunning()
     }
 
-    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         configureQuantumUI()
@@ -156,12 +164,14 @@ class QuantumCatViewController: UIViewController {
         view.backgroundColor = .black
 
         let backgroundView = GradientView()
-        backgroundView.colors = [UIColor(red: 0.05, green: 0.05, blue: 0.15, alpha: 1).cgColor,
-                                 UIColor(red: 0.1, green: 0.2, blue: 0.3, alpha: 1).cgColor]
+        backgroundView.colors = [
+            UIColor(red: 0.05, green: 0.05, blue: 0.15, alpha: 1).cgColor,
+            UIColor(red: 0.1, green: 0.2, blue: 0.3, alpha: 1).cgColor
+        ]
         backgroundView.frame = view.bounds
         view.addSubview(backgroundView)
         view.addSubview(infoButton)
-        view.bringSubviewToFront(infoButton) // Add this line
+        view.bringSubviewToFront(infoButton)
 
         quantumContainer.layer.addSublayer(quantumGlowLayer)
         quantumContainer.addSubview(quantumBoxImageView)
@@ -178,7 +188,6 @@ class QuantumCatViewController: UIViewController {
         stackView.spacing = 25
         stackView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(stackView)
-
         view.addSubview(countdownLabel)
 
         NSLayoutConstraint.activate([
@@ -212,16 +221,15 @@ class QuantumCatViewController: UIViewController {
             emptyBoxImageView.centerYAnchor.constraint(equalTo: quantumContainer.centerYAnchor, constant: 40),
             emptyBoxImageView.widthAnchor.constraint(equalToConstant: 400),
             emptyBoxImageView.heightAnchor.constraint(equalToConstant: 400),
-            infoButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-             infoButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
-             infoButton.widthAnchor.constraint(equalToConstant: 40),
-             infoButton.heightAnchor.constraint(equalToConstant: 40)
-         ])
 
-//        quantumContainer.layer.addSublayer(particleEmitter)
+            infoButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            infoButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+            infoButton.widthAnchor.constraint(equalToConstant: 40),
+            infoButton.heightAnchor.constraint(equalToConstant: 40)
+        ])
     }
 
-    // MARK: - Camera Setup (변경된 부분)
+    // MARK: - Camera Setup
     private func setupCamera() {
         guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front),
               let input = try? AVCaptureDeviceInput(device: device) else {
@@ -246,7 +254,7 @@ class QuantumCatViewController: UIViewController {
         captureSession.startRunning()
     }
 
-    // MARK: - Animation (기존 애니메이션 유지)
+    // MARK: - Animation
     private func startBoxIdleAnimation() {
         let shake = CAKeyframeAnimation(keyPath: "transform.rotation.z")
         shake.values = [-0.05, 0.05, -0.03, 0.03, 0]
@@ -264,34 +272,27 @@ class QuantumCatViewController: UIViewController {
         quantumGlowLayer.add(glow, forKey: "glowPulse")
     }
 
-    // MARK: - Face Detection Handling (변경된 부분)
+    // MARK: - Face Detection Handling
     private func startCountdown() {
         detectionStartTime = Date()
 
         faceDetectionTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
             guard let self = self else { return }
-
-            // 메인 스레드에서만 프로퍼티 접근
             DispatchQueue.main.async {
                 guard let startTime = self.detectionStartTime else { return }
-
                 let elapsed = Date().timeIntervalSince(startTime)
                 let remaining = max(0, 3 - Int(elapsed))
-
                 self.countdownLabel.text = remaining > 0 ? "\(remaining)" : ""
-
                 if elapsed >= 3 {
                     self.faceDetectionTimer?.invalidate()
                     self.collapseWaveFunction()
                 }
             }
         }
-
-        // 메인 런루프에 타이머 등록 (추가)
         RunLoop.main.add(faceDetectionTimer!, forMode: .common)
     }
 
-    // MARK: - Quantum Interaction Logic (기존 로직 유지)
+    // MARK: - Quantum Interaction Logic
     @objc private func resetQuantumExperiment() {
         boxOpenAnimator?.stopAnimation(true)
         quantumBoxImageView.layer.removeAllAnimations()
@@ -312,30 +313,24 @@ class QuantumCatViewController: UIViewController {
         startBoxIdleAnimation()
         captureSession.startRunning()
 
-        // 얼굴 인식 재시작
-           if !captureSession.isRunning {
-               captureSession.startRunning() // 카메라 세션 재개
-           }
+        if !captureSession.isRunning {
+            captureSession.startRunning()
+        }
     }
 
     private func collapseWaveFunction() {
         let isPresent = Bool.random()
         playSoundEffect(name: "quantum_collapse")
-
         boxOpenAnimator?.stopAnimation(true)
         boxOpenAnimator = UIViewPropertyAnimator(duration: 1.0, dampingRatio: 0.6) {
             self.quantumBoxImageView.transform = CGAffineTransform(scaleX: 1.8, y: 0.2)
             self.quantumBoxImageView.alpha = 0.5
         }
-
         boxOpenAnimator?.addCompletion { _ in
             self.quantumBoxImageView.isHidden = true
-
-                   // 얼굴 인식 중지
-                   self.captureSession.stopRunning() // 카메라 세션 정지
-                   self.faceDetectionTimer?.invalidate() // 타이머 해제
-                   self.detectionStartTime = nil // 시작 시간 초기화
-
+            self.captureSession.stopRunning()
+            self.faceDetectionTimer?.invalidate()
+            self.detectionStartTime = nil
 
             if isPresent {
                 self.catImageView.isHidden = false
@@ -347,19 +342,18 @@ class QuantumCatViewController: UIViewController {
 
             UIView.transition(with: self.quantumStateLabel, duration: 0.8, options: .transitionCrossDissolve) {
                 self.quantumStateLabel.text = isPresent ? "The cat is in the box! 🐾" :
-                "The cat has quantum-leaped to another dimension! 🌟"
+                    "The cat has quantum-leaped to another dimension! 🌟"
                 self.quantumStateLabel.gradientColors = isPresent ?
-                [UIColor.systemBlue.cgColor, UIColor(hex: "#00ff88").cgColor] :
-                [UIColor.systemPurple.cgColor, UIColor(hex: "#ff99cc").cgColor]
+                    [UIColor.systemBlue.cgColor, UIColor(hex: "#00ff88").cgColor] :
+                    [UIColor.systemPurple.cgColor, UIColor(hex: "#ff99cc").cgColor]
             }
 
             self.showResultPopup(isPresent: isPresent)
         }
-
         boxOpenAnimator?.startAnimation()
     }
 
-    // 기존 유틸리티 함수들 유지
+    // MARK: - Sound & Alert Utilities
     private func playSoundEffect(name: String) {
         guard let url = Bundle.main.url(forResource: name, withExtension: "wav") else { return }
         var soundID: SystemSoundID = 0
@@ -367,12 +361,93 @@ class QuantumCatViewController: UIViewController {
         AudioServicesPlaySystemSound(soundID)
     }
 
+    // 기존 결과 얼럿 수정 → OK 선택 시 퀴즈 시작 (아래 startQuiz() 호출)
     private func showResultPopup(isPresent: Bool) {
         let message = isPresent ? "🐾 Cat detected in the box!" : "🌌 Cat is quantum-leaping!"
-        let alert = UIAlertController(title: isPresent ? "Cat Detected!" : "Exploring the Quantum Realm!",
-                                    message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        let alert = UIAlertController(
+            title: isPresent ? "Cat Detected!" : "Exploring the Quantum Realm!",
+            message: message,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
+            self.showQuizPrompt()
+        }))
         present(alert, animated: true)
+    }
+
+    // 퀴즈 응시 여부 확인
+    private func showQuizPrompt() {
+        let prompt = UIAlertController(
+            title: "Quiz Time!",
+            message: "Would you like to test your knowledge on quantum concepts?",
+            preferredStyle: .alert
+        )
+        prompt.addAction(UIAlertAction(title: "Yes", style: .default, handler: { _ in
+            self.startQuiz()
+        }))
+        prompt.addAction(UIAlertAction(title: "No", style: .cancel, handler: nil))
+        present(prompt, animated: true)
+    }
+
+    // MARK: - Quiz Logic
+
+    // 퀴즈 시작: 전체 질문 풀에서 3개를 랜덤 선택
+    private func startQuiz() {
+        let allQuestions: [QuizQuestion] = [
+            QuizQuestion(
+                question: "What phenomenon does the experiment demonstrate?",
+                choices: ["Observer Effect", "Quantum Tunneling", "Superposition"],
+                correctAnswerIndex: 0,
+                explanation: "Observation collapses the quantum state – this is known as the Observer Effect."
+            ),
+            QuizQuestion(
+                question: "What happens to the quantum state when observed?",
+                choices: ["It remains superposed", "It collapses", "It becomes entangled"],
+                correctAnswerIndex: 1,
+                explanation: "When observed, the quantum state collapses into a definite state."
+            ),
+            QuizQuestion(
+                question: "Before observation, how can the cat be described?",
+                choices: ["Definitely alive", "Definitely dead", "Both alive and dead"],
+                correctAnswerIndex: 2,
+                explanation: "According to quantum theory, before observation, the cat exists in a superposition – both alive and dead."
+            )
+        ]
+        // 랜덤하게 3문제를 선택
+        quizQuestions = Array(allQuestions.shuffled().prefix(3))
+        currentQuizIndex = 0
+        showNextQuizQuestion()
+    }
+
+    // 다음 퀴즈 문제 표시 (퀴즈가 모두 끝나면 종료 메시지)
+    private func showNextQuizQuestion() {
+        guard currentQuizIndex < quizQuestions.count else {
+            let alert = UIAlertController(title: "Quiz Completed", message: "Thanks for taking the quiz!", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            present(alert, animated: true)
+            return
+        }
+        let currentQuestion = quizQuestions[currentQuizIndex]
+        let quizAlert = UIAlertController(title: "Quiz", message: currentQuestion.question, preferredStyle: .alert)
+        for (index, choice) in currentQuestion.choices.enumerated() {
+            quizAlert.addAction(UIAlertAction(title: choice, style: .default, handler: { _ in
+                let isCorrect = (index == currentQuestion.correctAnswerIndex)
+                self.showQuizAnswer(isCorrect: isCorrect, explanation: currentQuestion.explanation)
+            }))
+        }
+        present(quizAlert, animated: true)
+    }
+
+    // 퀴즈 정답 확인 및 해설 표시 후 다음 문제 진행
+    private func showQuizAnswer(isCorrect: Bool, explanation: String) {
+        let title = isCorrect ? "Correct!" : "Incorrect"
+        let message = isCorrect ? "Yes! That's correct." : "Incorrect. \(explanation)"
+        let answerAlert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        answerAlert.addAction(UIAlertAction(title: "Next", style: .default, handler: { _ in
+            self.currentQuizIndex += 1
+            self.showNextQuizQuestion()
+        }))
+        present(answerAlert, animated: true)
     }
 
     private func showAlert(message: String) {
@@ -381,6 +456,7 @@ class QuantumCatViewController: UIViewController {
         present(alert, animated: true)
     }
 }
+
 
 // MARK: - Face Detection Delegate (변경된 부분)
 extension QuantumCatViewController: @preconcurrency AVCaptureMetadataOutputObjectsDelegate {
