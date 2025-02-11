@@ -418,28 +418,41 @@ class QuantumCatViewController: UIViewController {
         present(prompt, animated: true)
     }
 
-    // MARK: - Quiz Logic (기존 코드 유지)
+    // MARK: - Quiz Logic (수정된 부분)
     private func startQuiz() {
         let allQuestions: [QuizQuestion] = [
             QuizQuestion(
-                question: "What phenomenon does the experiment demonstrate?",
-                choices: ["Observer Effect", "Quantum Tunneling", "Superposition"],
-                correctAnswerIndex: 0,
-                explanation: "Observation collapses the quantum state – this is known as the Observer Effect."
-            ),
-            QuizQuestion(
-                question: "What happens to the quantum state when observed?",
-                choices: ["It remains superposed", "It collapses", "It becomes entangled"],
-                correctAnswerIndex: 1,
-                explanation: "When observed, the quantum state collapses into a definite state."
-            ),
-            QuizQuestion(
-                question: "Before observation, how can the cat be described?",
-                choices: ["Definitely alive", "Definitely dead", "Both alive and dead"],
+                question: "Before you open the box, how does the cat behave?",
+                choices: [
+                    "The cat is solely inside the box.",
+                    "The cat is solely outside the box.",
+                    "The cat is both inside and outside."
+                ],
                 correctAnswerIndex: 2,
-                explanation: "According to quantum theory, before observation, the cat exists in a superposition – both alive and dead."
+                explanation: "In this experiment, before you look, the cat's state is uncertain—just like being both inside and outside the box at once. This represents a superposition of states."
+            ),
+            QuizQuestion(
+                question: "When you open the box, what happens to the cat?",
+                choices: [
+                    "The cat stays in its mysterious state.",
+                    "Observation reveals the cat's definite position.",
+                    "The cat magically disappears."
+                ],
+                correctAnswerIndex: 1,
+                explanation: "Opening the box forces the cat to choose a side—either inside or outside. This is analogous to the collapse of the quantum state upon observation."
+            ),
+            QuizQuestion(
+                question: "What does the cat and box experiment teach us about reality?",
+                choices: [
+                    "Reality is fixed, no matter what.",
+                    "Observation can influence a system's state.",
+                    "Cats are magical creatures."
+                ],
+                correctAnswerIndex: 1,
+                explanation: "The experiment shows that the act of observing forces a system to settle into one state. In other words, our observation can affect reality."
             )
         ]
+        // 랜덤하게 3문제를 선택 (여기서는 전체 문제 3개를 사용하지만, 필요에 따라 더 많은 질문을 추가할 수 있습니다)
         quizQuestions = Array(allQuestions.shuffled().prefix(3))
         currentQuizIndex = 0
         showNextQuizQuestion()
@@ -464,8 +477,11 @@ class QuantumCatViewController: UIViewController {
     }
 
     private func showQuizAnswer(isCorrect: Bool, explanation: String) {
+        // 해설을 정답/오답 모두에 첨부하여 전달합니다.
         let title = isCorrect ? "Correct!" : "Incorrect"
-        let message = isCorrect ? "Yes! That's correct." : "Incorrect. \(explanation)"
+        let message = isCorrect ?
+            "Yes! That's correct.\n\nExplanation:\n\(explanation)" :
+            "Incorrect.\n\nExplanation:\n\(explanation)"
         let answerAlert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         answerAlert.addAction(UIAlertAction(title: "Next", style: .default, handler: { _ in
             self.currentQuizIndex += 1
@@ -473,6 +489,7 @@ class QuantumCatViewController: UIViewController {
         }))
         present(answerAlert, animated: true)
     }
+
 
     private func showAlert(message: String) {
         let alert = UIAlertController(title: "Notice", message: message, preferredStyle: .alert)
